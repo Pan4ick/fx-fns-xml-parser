@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+  Copyright (c) 2015, 2019, Gluon and/or its affiliates.
+  All rights reserved. Use is subject to license terms.
+
+  This file is available and licensed under the following license:
+
+  Redistribution and use in source and binary forms, with or without
+  modification, are permitted provided that the following conditions
+  are met:
+
+  - Redistributions of source code must retain the above copyright
+    notice, this list of conditions and the following disclaimer.
+  - Redistributions in binary form must reproduce the above copyright
+    notice, this list of conditions and the following disclaimer in
+    the documentation and/or other materials provided with the distribution.
+  - Neither the name of Oracle Corporation nor the names of its
+    contributors may be used to endorse or promote products derived
+    from this software without specific prior written permission.
+
+  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+  "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+  LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+  A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+  OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+  SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+  LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+  DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+  THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+-->
+
+<?import javafx.scene.control.ChoiceBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Menu?>
+<?import javafx.scene.control.MenuBar?>
+<?import javafx.scene.control.MenuItem?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+
+<VBox prefHeight="700.0" prefWidth="1000.0" xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.enviogroup.fxfnsxmlparser.Controller">
+  <children>
+    <MenuBar VBox.vgrow="NEVER">
+      <menus>
+        <Menu id="fileMenu" mnemonicParsing="false" text="Файл">
+          <items>
+            <MenuItem id="openXml" fx:id="openXml" mnemonicParsing="false" text="Открыть..." />
+            <MenuItem fx:id="saveXml" mnemonicParsing="false" text="Сохранить" />
+            <MenuItem fx:id="saveAsXml" mnemonicParsing="false" text="Сохранить как.." />
+            <MenuItem fx:id="exit" mnemonicParsing="false" text="Выйти" />
+          </items>
+        </Menu>
+      </menus>
+    </MenuBar>
+    <AnchorPane maxHeight="-1.0" maxWidth="-1.0" prefHeight="652.0" prefWidth="979.0" VBox.vgrow="ALWAYS">
+      <children>
+            <Label layoutX="59.0" layoutY="266.0" text="Организация грузополучателя:">
+               <font>
+                  <Font size="14.0" />
+               </font>
+            </Label>
+            <Label layoutX="182.0" layoutY="297.0" text="Код страны:">
+               <font>
+                  <Font size="14.0" />
+               </font>
+            </Label>
+            <TextField id="nameOrgInput" fx:id="nameOrgInput" layoutX="269.0" layoutY="264.0" />
+            <TextField id="countryCodeInput" fx:id="countryCodeInput" layoutX="269.0" layoutY="295.0" prefHeight="25.0" prefWidth="88.0" />
+            <Label layoutX="428.0" layoutY="267.0" text="ИНН:">
+               <font>
+                  <Font size="14.0" />
+               </font>
+            </Label>
+            <Label layoutX="367.0" layoutY="297.0" text="Адрес:">
+               <font>
+                  <Font size="14.0" />
+               </font>
+            </Label>
+            <Label layoutX="631.0" layoutY="266.0" text="КПП:">
+               <font>
+                  <Font size="14.0" />
+               </font>
+            </Label>
+            <TextField id="innInput" fx:id="innInput" layoutX="472.0" layoutY="263.0" />
+            <TextField id="addressInput" fx:id="addressInput" layoutX="417.0" layoutY="295.0" prefHeight="25.0" prefWidth="405.0" />
+            <TextField id="kppInput" fx:id="kppInput" layoutX="673.0" layoutY="265.0" prefHeight="25.0" prefWidth="149.0" />
+            <ChoiceBox fx:id="listBox" layoutX="562.0" layoutY="338.0" prefHeight="25.0" prefWidth="42.0" />
+            <Label layoutX="398.0" layoutY="341.0" text="Количество документов:">
+               <font>
+                  <Font size="14.0" />
+               </font>
+            </Label>
+            <GridPane fx:id="documentTable" layoutX="192.0" layoutY="375.0" prefWidth="616.0" visible="false">
+              <columnConstraints>
+                <ColumnConstraints hgrow="SOMETIMES" maxWidth="243.0" minWidth="10.0" prefWidth="243.0" />
+                <ColumnConstraints hgrow="SOMETIMES" maxWidth="193.0" minWidth="0.0" prefWidth="188.0" />
+                  <ColumnConstraints hgrow="SOMETIMES" maxWidth="254.0" minWidth="10.0" prefWidth="168.0" />
+              </columnConstraints>
+              <rowConstraints>
+                <RowConstraints maxHeight="35.0" minHeight="35.0" prefHeight="30.0" vgrow="SOMETIMES" />
+              </rowConstraints>
+               <children>
+                  <Label alignment="CENTER" contentDisplay="CENTER" maxWidth="1.7976931348623157E308" minHeight="-Infinity" minWidth="-Infinity" text="Наменование документа (НаимОсн)" textAlignment="CENTER" GridPane.hgrow="ALWAYS" GridPane.vgrow="ALWAYS">
+                     <font>
+                        <Font size="14.0" />
+                     </font>
+                  </Label>
+                  <Label alignment="CENTER" contentDisplay="CENTER" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" text="Номер документа (НомОсн)" textAlignment="CENTER" GridPane.columnIndex="1">
+                     <font>
+                        <Font size="14.0" />
+                     </font>
+                  </Label>
+                  <Label alignment="CENTER" contentDisplay="CENTER" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefWidth="180.0" text="Дата документа (ДатаОсн)" textAlignment="CENTER" GridPane.columnIndex="2">
+                     <font>
+                        <Font size="14.0" />
+                     </font>
+                  </Label>
+               </children>
+            </GridPane>
+      </children>
+    </AnchorPane>
+  </children>
+</VBox>
