@@ -16,7 +16,7 @@ import javax.xml.transform.TransformerException;
 import javax.xml.xpath.XPathExpressionException;
 import java.io.File;
 import java.net.URL;
-import java.util.ResourceBundle;
+import java.util.*;
 
 public class Controller {
 
@@ -59,7 +59,10 @@ public class Controller {
     private GridPane documentTable;
 
     private static XmlParser xmlParser;
+    private Map<Integer, List<TextField>> textFieldsInTable = new HashMap<>();
+    private static final int ELEMENTS_IN_ROW_AMOUNT = 3;
     private static final ObservableList<Integer> osnPerAmount = FXCollections.observableArrayList(0, 1, 2, 3);
+
     @FXML
     void initialize() {
         final FileChooser fileChooser = new FileChooser();
@@ -98,27 +101,14 @@ public class Controller {
         listBox.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent actionEvent) {
-                //documentTable.setVisible(false);
-                if (listBox.getValue() > 0) {
-                    deleteRows();
-                    createRows(listBox.getValue());
-                    documentTable.setVisible(true);
+                if (textFieldsInTable.size() > listBox.getValue()) {
+                    deleteRows(textFieldsInTable.size(),textFieldsInTable.size() - listBox.getValue());
+                } else {
+                    createRows(documentTable.getRowCount(),listBox.getValue() - textFieldsInTable.size());
                 }
+                documentTable.setVisible(listBox.getValue() > 0);
             }
         });
-    }
-
-    private void createRows(int rowsAmount) {
-        for (int i = 1; i <= rowsAmount; i++) {
-            documentTable.addRow(i, new TextField(), new TextField(), new TextField());
-        }
-    }
-
-    private void deleteRows() {
-            documentTable.getChildren().removeIf(node -> GridPane.getRowIndex(node) == 1);
-//        while(documentTable.getRowConstraints().size() > 1){
-//            documentTable.getRowConstraints().remove(1);
-//        }
     }
 
     private XmlParser setXmlParser(File file) throws Exception {
@@ -129,6 +119,7 @@ public class Controller {
         countryCodeInput.setText(xmlParser.getCountryCode());
         addressInput.setText(xmlParser.getAddress());
         listBox.setValue(xmlParser.getAgreements().size());
+        addValuesToTable(xmlParser);
         return xmlParser;
     }
 
@@ -137,12 +128,39 @@ public class Controller {
         fileChooser.setInitialDirectory(new File(System.getProperty("user.home") + "/Downloads/"));
     }
 
+    private void addValuesToTable(XmlParser xmlParser) {
+        for (int i = 0; i < textFieldsInTable.size(); i++) {
+            textFieldsInTable.get(i + 1).get(0).setText(xmlParser.getAgreements().get(i).getDocumentName());
+            textFieldsInTable.get(i + 1).get(1).setText(xmlParser.getAgreements().get(i).getDocumentNumber());
+            textFieldsInTable.get(i + 1).get(2).setText(xmlParser.getAgreements().get(i).getDocumentDate());
+        }
+    }
+
+    private void createRows(int startIndex, int rowsAmount) {
+        for (int i = startIndex; i < startIndex + rowsAmount; i++) {
+            List<TextField> textFields = new ArrayList<>();
+            for (int j = 0; j < ELEMENTS_IN_ROW_AMOUNT; j++) {
+                textFields.add(new TextField());
+            }
+            textFieldsInTable.put(i, textFields);
+            documentTable.addRow(i, textFields.toArray(new TextField[textFields.size()]));
+        }
+    }
+
+    private void deleteRows(int startIndex, int rowsAmount) {
+        for (int i = startIndex; i > (startIndex - rowsAmount); i--) {
+            GridPaneUtils.removeRow(documentTable, GridPane.getRowIndex((textFieldsInTable.get(i)).get(1)));
+            textFieldsInTable.remove(i);
+        }
+    }
+
     public void clear() {
         nameOrgInput.setText("");
         innInput.setText("");
         kppInput.setText("");
         countryCodeInput.setText("");
         addressInput.setText("");
+        deleteRows(documentTable.getRowCount(), documentTable.getRowCount()-1);
     }
 
     public TextField getAddressInput() {
