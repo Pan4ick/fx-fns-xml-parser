@@ -124,6 +124,11 @@
                   </Label>
                </children>
             </GridPane>
+            <Label fx:id="errorLabel" alignment="CENTER" contentDisplay="CENTER" layoutX="128.0" layoutY="189.0" textAlignment="CENTER" textFill="RED" visible="false">
+               <font>
+                  <Font size="24.0" />
+               </font>
+            </Label>
       </children>
     </AnchorPane>
   </children>

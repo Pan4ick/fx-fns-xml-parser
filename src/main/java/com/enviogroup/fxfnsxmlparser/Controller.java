@@ -1,11 +1,14 @@
 package com.enviogroup.fxfnsxmlparser;
 
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.scene.control.ChoiceBox;
+import javafx.scene.control.Label;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.GridPane;
@@ -17,6 +20,8 @@ import javax.xml.xpath.XPathExpressionException;
 import java.io.File;
 import java.net.URL;
 import java.util.*;
+
+import static com.enviogroup.fxfnsxmlparser.Tags.*;
 
 public class Controller {
 
@@ -54,6 +59,9 @@ public class Controller {
     private MenuItem saveXml;
 
     @FXML
+    private Label errorLabel;
+
+    @FXML
     private ChoiceBox<Integer> listBox;
     @FXML
     private GridPane documentTable;
@@ -73,8 +81,12 @@ public class Controller {
                 File file = fileChooser.showOpenDialog(new Stage());
                 if (file != null) {
                     try {
-                        xmlParser = setXmlParser(file);
+                        xmlParser = setFormValues(file);
+                        errorLabel.setVisible(false);
+                        addListeners();
                     } catch (Exception e) {
+                        errorLabel.setText("Внимание! Открываемый вам файл не соотвествует формату ФНС.");
+                        errorLabel.setVisible(true);
                         throw new RuntimeException(e);
                     }
                 }
@@ -88,9 +100,12 @@ public class Controller {
                 xmlParser.setKpp(kppInput.getText());
                 xmlParser.setCountryCode(countryCodeInput.getText());
                 xmlParser.setAddress(addressInput.getText());
+                xmlParser.setAgreements(createAgreementsList());
                 try {
                     xmlParser.saveChanges();
                 } catch (XPathExpressionException | TransformerException ex) {
+                    errorLabel.setText("Хуйня какая-то, этого не должно быть.");
+                    errorLabel.setVisible(true);
                     throw new RuntimeException(ex);
                 }
                 clear();
@@ -102,16 +117,16 @@ public class Controller {
             @Override
             public void handle(ActionEvent actionEvent) {
                 if (textFieldsInTable.size() > listBox.getValue()) {
-                    deleteRows(textFieldsInTable.size(),textFieldsInTable.size() - listBox.getValue());
+                    deleteRows(textFieldsInTable.size(), textFieldsInTable.size() - listBox.getValue());
                 } else {
-                    createRows(documentTable.getRowCount(),listBox.getValue() - textFieldsInTable.size());
+                    createRows(documentTable.getRowCount(), listBox.getValue() - textFieldsInTable.size());
                 }
                 documentTable.setVisible(listBox.getValue() > 0);
             }
         });
     }
 
-    private XmlParser setXmlParser(File file) throws Exception {
+    private XmlParser setFormValues(File file) throws Exception {
         XmlParser xmlParser = new XmlParser(file);
         nameOrgInput.setText(xmlParser.getOrgName());
         innInput.setText(xmlParser.getInn());
@@ -126,6 +141,7 @@ public class Controller {
     private static void configureFileChooser(final FileChooser fileChooser) {
         fileChooser.setTitle("Открыть...");
         fileChooser.setInitialDirectory(new File(System.getProperty("user.home") + "/Downloads/"));
+        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("XML", "*.xml"));
     }
 
     private void addValuesToTable(XmlParser xmlParser) {
@@ -134,6 +150,16 @@ public class Controller {
             textFieldsInTable.get(i + 1).get(1).setText(xmlParser.getAgreements().get(i).getDocumentNumber());
             textFieldsInTable.get(i + 1).get(2).setText(xmlParser.getAgreements().get(i).getDocumentDate());
         }
+    }
+
+    private List<Agreement> createAgreementsList() {
+        List<Agreement> agreements = new ArrayList<Agreement>();
+        for (int i = 0; i < textFieldsInTable.size(); i++) {
+            List<TextField> tfs = textFieldsInTable.get(i + 1);
+            Agreement agreement = new Agreement(tfs.get(0).getText(), tfs.get(1).getText(), tfs.get(2).getText());
+            agreements.add(agreement);
+        }
+        return agreements;
     }
 
     private void createRows(int startIndex, int rowsAmount) {
@@ -154,69 +180,59 @@ public class Controller {
         }
     }
 
-    public void clear() {
+    private void clear() {
         nameOrgInput.setText("");
         innInput.setText("");
         kppInput.setText("");
         countryCodeInput.setText("");
         addressInput.setText("");
-        deleteRows(documentTable.getRowCount(), documentTable.getRowCount()-1);
+        deleteRows(textFieldsInTable.size(), textFieldsInTable.size());
+        listBox.setValue(0);
+        documentTable.setVisible(false);
+        xmlParser = null;
     }
 
-    public TextField getAddressInput() {
-        return addressInput;
-    }
+    private void addListeners() {
+        innInput.textProperty().addListener(new ChangeListener<String>() {
+            @Override
+            public void changed(ObservableValue<? extends String> observableValue, String s, String t1) {
+                if (!t1.matches(INN_REGEX) || t1.isEmpty()) {
+                    errorLabel.setText("Внимание! ИНН организации должен состоять из 10 цифр");
+                    //errorLabel.setVisible(true);
+                } else {
+                    innInput.setText(t1);
+                    errorLabel.setVisible(false);
+                }
+            }
+        });
 
-    public void setAddressInput(TextField addressInput) {
-        this.addressInput = addressInput;
-    }
+        kppInput.textProperty().addListener(new ChangeListener<String>() {
+            @Override
+            public void changed(ObservableValue<? extends String> observableValue, String s, String t1) {
+                if (!t1.matches(KPP_REGEX) || t1.isEmpty()) {
+                    errorLabel.setText("Внимание! КПП организации должен состоять из 9 цифр");
+                    //errorLabel.setVisible(true);
+                } else {
+                    kppInput.setText(s);
+                    errorLabel.setVisible(false);
+                }
+            }
+        });
 
-    public TextField getCountryCodeInput() {
-        return countryCodeInput;
+        for (int i = 1; i < textFieldsInTable.size(); i++) {
+            TextField textField = textFieldsInTable.get(i).get(2);
+            textField.textProperty().addListener(new ChangeListener<String>() {
+                @Override
+                public void changed(ObservableValue<? extends String> observableValue, String s, String t1) {
+                    if (!t1.matches(DATE_REGEX) || t1.isEmpty()) {
+                        errorLabel.setText("Внимание! Введите дату в формате дд.мм.гггг");
+                        //errorLabel.setVisible(true);
+                    } else {
+                        textField.setText(s);
+                        errorLabel.setVisible(false);
+                    }
+                }
+            });
+        }
     }
-
-    public void setCountryCodeInput(TextField countryCodeInput) {
-        this.countryCodeInput = countryCodeInput;
-    }
-
-    public TextField getInnInput() {
-        return innInput;
-    }
-
-    public void setInnInput(TextField innInput) {
-        this.innInput = innInput;
-    }
-
-    public TextField getKppInput() {
-        return kppInput;
-    }
-
-    public void setKppInput(TextField kppInput) {
-        this.kppInput = kppInput;
-    }
-
-    public TextField getNameOrgInput() {
-        return nameOrgInput;
-    }
-
-    public void setNameOrgInput(TextField nameOrgInput) {
-        this.nameOrgInput = nameOrgInput;
-    }
-
-    public MenuItem getExit() {
-        return exit;
-    }
-
-    public MenuItem getOpenXml() {
-        return openXml;
-    }
-
-    public MenuItem getSaveAsXml() {
-        return saveAsXml;
-    }
-
-    public MenuItem getSaveXml() {
-        return saveXml;
-    }
-
 }

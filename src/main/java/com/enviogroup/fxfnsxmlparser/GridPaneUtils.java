@@ -28,16 +28,5 @@ public class GridPaneUtils {
 
         // Remove children from row
         grid.getChildren().removeIf(node -> getRowIndexAsInteger(node) == targetRowIndex);
-
-        // Update indexes for elements in further rows
-//        grid.getChildren().forEach(node -> {
-//            final int rowIndex = getRowIndexAsInteger(node);
-//            if (targetRowIndex < rowIndex) {
-//                GridPane.setRowIndex(node, rowIndex - 1);
-//            }
-//        });
-//
-//        // Remove row constraints
-//        grid.getRowConstraints().remove(targetRowIndex);
     }
 }

@@ -40,7 +40,7 @@ public class XmlParser implements Tags {
         element = setElementByPath(GRUZ_ADDRESS_PATH, xPath, document);
         countryCode = element.getAttribute(COD_STR);
         address = element.getAttribute(ADR_TEXT);
-        for (Element e: setElementsByPath(OSN_PER_PATH, xPath, document)) {
+        for (Element e : setElementsByPath(OSN_PER_PATH, xPath, document)) {
             Agreement agreement = new Agreement();
             agreement.setDocumentName(e.getAttribute(NAIM_OSN));
             agreement.setDocumentNumber(e.getAttribute(NOM_OSN));
@@ -72,18 +72,51 @@ public class XmlParser implements Tags {
     }
 
     public void saveChanges() throws XPathExpressionException, TransformerException {
-        Element element = setElementByPath(GRUZ_SV_YUL_UCH_PATH, xPath, document);
-        element.setAttribute(NAIM_ORG, orgName);
-        element.setAttribute(INN, inn);
-        element.setAttribute(KPP, kpp);
-        element = setElementByPath(GRUZ_ADDRESS_PATH, xPath, document);
-        element.setAttribute(COD_STR, countryCode);
-        element.setAttribute(ADR_TEXT, address);
+        saveChanges(file);
+    }
+
+    public void saveChanges(File file) throws XPathExpressionException, TransformerException {
+        Element elementInformation = setElementByPath(GRUZ_SV_YUL_UCH_PATH, xPath, document);
+        elementInformation.setAttribute(NAIM_ORG, orgName);
+        elementInformation.setAttribute(INN, inn);
+        elementInformation.setAttribute(KPP, kpp);
+        Element elementAddress = setElementByPath(GRUZ_ADDRESS_PATH, xPath, document);
+        elementAddress.setAttribute(COD_STR, countryCode);
+        elementAddress.setAttribute(ADR_TEXT, address);
+        List<Element> elementList = setElementsByPath(OSN_PER_PATH, xPath, document);
+        Element elementSvPer = setElementByPath(SV_PER_PATH, xPath, document);
+        while (!(elementList.size() == agreements.size())) {
+            if (elementList.size() > agreements.size()) {
+                elementSvPer.removeChild(elementList.get(elementList.size() - 1));
+                elementList.remove(elementList.size() - 1);
+            } else {
+                Element newElementOsnPer = document.createElement(OSN_PER);
+                elementSvPer.insertBefore(newElementOsnPer, elementSvPer.getFirstChild());
+                elementSvPer.normalize();
+                elementList.add(newElementOsnPer);
+            }
+        }
+        for (int i = 0; i < agreements.size(); i++) {
+            elementList.get(i).setAttribute(NAIM_OSN, agreements.get(i).getDocumentName());
+            elementList.get(i).setAttribute(NOM_OSN, agreements.get(i).getDocumentNumber());
+            elementList.get(i).setAttribute(DATE_OSN, agreements.get(i).getDocumentDate());
+        }
         Transformer transformer = TransformerFactory.newInstance().newTransformer();
+        transformer.setOutputProperty(OutputKeys.INDENT, "no");
         Result output = new StreamResult(file);
         Source input = new DOMSource(document);
         transformer.transform(input, output);
     }
+
+//    public void clear() {
+//        orgName = "";
+//        inn = "";
+//        kpp = "";
+//        countryCode = "";
+//        address = "";
+//        agreements.clear();
+//        file = null;
+//    }
 
     public String getOrgName() {
         return orgName;

@@ -5,6 +5,16 @@ public class Agreement {
     private String documentNumber;
     private String documentDate;
 
+    public Agreement() {
+
+    }
+
+    public Agreement(String documentName, String documentNumber, String documentDate) {
+        this.documentName = documentName;
+        this.documentNumber = documentNumber;
+        this.documentDate = documentDate;
+    }
+
     public String getDocumentName() {
         return documentName;
     }

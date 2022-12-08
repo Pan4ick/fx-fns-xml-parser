@@ -14,8 +14,13 @@ public interface Tags {
     String NAIM_OSN = "НаимОсн";
     String NOM_OSN = "НомОсн";
     String DATE_OSN = "ДатаОсн";
+    String OSN_PER = "ОснПер";
     String GRUZ_SV_YUL_UCH_PATH = "/Файл/Документ/СвСчФакт/ГрузПолуч/ИдСв/СвЮЛУч";
     String GRUZ_ADDRESS_PATH = "/Файл/Документ/СвСчФакт/ГрузПолуч/Адрес/АдрИнф";
     String OSN_PER_PATH = "/Файл/Документ/СвПродПер/СвПер/ОснПер";
+    String SV_PER_PATH = "/Файл/Документ/СвПродПер/СвПер";
+    String INN_REGEX = "^\\d{10}$";
+    String KPP_REGEX = "^\\d{9}$";
+    String DATE_REGEX = "^(0[1-9]|[12][0-9]|3[01]).(0[1-9]|1[12]).([1-2]\\d{3})$";
 
 }
