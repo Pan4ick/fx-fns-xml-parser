@@ -102,7 +102,7 @@ public class XmlParser implements Tags {
             elementList.get(i).setAttribute(DATE_OSN, agreements.get(i).getDocumentDate());
         }
         Transformer transformer = TransformerFactory.newInstance().newTransformer();
-        transformer.setOutputProperty(OutputKeys.INDENT, "no");
+        transformer.setOutputProperty(OutputKeys.INDENT, "yes");
         Result output = new StreamResult(file);
         Source input = new DOMSource(document);
         transformer.transform(input, output);

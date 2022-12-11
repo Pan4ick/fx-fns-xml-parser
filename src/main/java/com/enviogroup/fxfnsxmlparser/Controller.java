@@ -103,12 +103,14 @@ public class Controller {
                 xmlParser.setAgreements(createAgreementsList());
                 try {
                     xmlParser.saveChanges();
+                    clear();
+                    errorLabel.setVisible(false);
                 } catch (XPathExpressionException | TransformerException ex) {
-                    errorLabel.setText("Хуйня какая-то, этого не должно быть.");
+                    errorLabel.setText("Ошибка.");
                     errorLabel.setVisible(true);
                     throw new RuntimeException(ex);
                 }
-                clear();
+
             }
         });
         listBox.setItems(osnPerAmount);
@@ -121,6 +123,7 @@ public class Controller {
                 } else {
                     createRows(documentTable.getRowCount(), listBox.getValue() - textFieldsInTable.size());
                 }
+                addListeners();
                 documentTable.setVisible(listBox.getValue() > 0);
             }
         });
@@ -198,7 +201,7 @@ public class Controller {
             public void changed(ObservableValue<? extends String> observableValue, String s, String t1) {
                 if (!t1.matches(INN_REGEX) || t1.isEmpty()) {
                     errorLabel.setText("Внимание! ИНН организации должен состоять из 10 цифр");
-                    //errorLabel.setVisible(true);
+                    errorLabel.setVisible(true);
                 } else {
                     innInput.setText(t1);
                     errorLabel.setVisible(false);
@@ -211,24 +214,24 @@ public class Controller {
             public void changed(ObservableValue<? extends String> observableValue, String s, String t1) {
                 if (!t1.matches(KPP_REGEX) || t1.isEmpty()) {
                     errorLabel.setText("Внимание! КПП организации должен состоять из 9 цифр");
-                    //errorLabel.setVisible(true);
+                    errorLabel.setVisible(true);
                 } else {
-                    kppInput.setText(s);
+                    kppInput.setText(t1);
                     errorLabel.setVisible(false);
                 }
             }
         });
 
-        for (int i = 1; i < textFieldsInTable.size(); i++) {
+        for (int i = 1; i <= textFieldsInTable.size(); i++) {
             TextField textField = textFieldsInTable.get(i).get(2);
             textField.textProperty().addListener(new ChangeListener<String>() {
                 @Override
                 public void changed(ObservableValue<? extends String> observableValue, String s, String t1) {
                     if (!t1.matches(DATE_REGEX) || t1.isEmpty()) {
                         errorLabel.setText("Внимание! Введите дату в формате дд.мм.гггг");
-                        //errorLabel.setVisible(true);
+                        errorLabel.setVisible(true);
                     } else {
-                        textField.setText(s);
+                        textField.setText(t1);
                         errorLabel.setVisible(false);
                     }
                 }
