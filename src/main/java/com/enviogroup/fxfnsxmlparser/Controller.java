@@ -1,5 +1,6 @@
 package com.enviogroup.fxfnsxmlparser;
 
+import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
@@ -18,7 +19,6 @@ import javafx.stage.Stage;
 import javax.xml.transform.TransformerException;
 import javax.xml.xpath.XPathExpressionException;
 import java.io.File;
-import java.net.URL;
 import java.util.*;
 
 import static com.enviogroup.fxfnsxmlparser.Tags.*;
@@ -26,28 +26,49 @@ import static com.enviogroup.fxfnsxmlparser.Tags.*;
 public class Controller {
 
     @FXML
-    private ResourceBundle resources;
+    private TextField addressInputConsignee;
 
     @FXML
-    private URL location;
+    private TextField cargoInput;
 
     @FXML
-    private TextField addressInput;
+    private TextField addressInputSender;
 
     @FXML
-    private TextField countryCodeInput;
+    private TextField countryCodeInputConsignee;
+
+    @FXML
+    private TextField countryCodeInputSender;
+
+    @FXML
+    private GridPane documentTable;
+
+    @FXML
+    private Label errorLabel;
 
     @FXML
     private MenuItem exit;
 
     @FXML
-    private TextField innInput;
+    private TextField innInputConsignee;
 
     @FXML
-    private TextField kppInput;
+    private TextField innInputSender;
 
     @FXML
-    private TextField nameOrgInput;
+    private TextField kppInputConsignee;
+
+    @FXML
+    private TextField kppInputSender;
+
+    @FXML
+    private ChoiceBox<Integer> listBox;
+
+    @FXML
+    private TextField nameOrgInputConsignee;
+
+    @FXML
+    private TextField nameOrgInputSender;
 
     @FXML
     private MenuItem openXml;
@@ -58,14 +79,6 @@ public class Controller {
     @FXML
     private MenuItem saveXml;
 
-    @FXML
-    private Label errorLabel;
-
-    @FXML
-    private ChoiceBox<Integer> listBox;
-    @FXML
-    private GridPane documentTable;
-
     private static XmlParser xmlParser;
     private Map<Integer, List<TextField>> textFieldsInTable = new HashMap<>();
     private static final int ELEMENTS_IN_ROW_AMOUNT = 3;
@@ -74,10 +87,25 @@ public class Controller {
     @FXML
     void initialize() {
         final FileChooser fileChooser = new FileChooser();
+        exit.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                Platform.exit();
+            }
+        });
+        //TODO:
+        saveAsXml.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                configureSaveFileChooser(fileChooser);
+                File file = fileChooser.showSaveDialog(new Stage());
+                file = xmlParser.getFile();
+            }
+        });
         openXml.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent actionEvent) {
-                configureFileChooser(fileChooser);
+                configureOpenFileChooser(fileChooser);
                 File file = fileChooser.showOpenDialog(new Stage());
                 if (file != null) {
                     try {
@@ -95,12 +123,7 @@ public class Controller {
         saveXml.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent actionEvent) {
-                xmlParser.setOrgName(nameOrgInput.getText());
-                xmlParser.setInn(innInput.getText());
-                xmlParser.setKpp(kppInput.getText());
-                xmlParser.setCountryCode(countryCodeInput.getText());
-                xmlParser.setAddress(addressInput.getText());
-                xmlParser.setAgreements(createAgreementsList());
+                getValuesFromForm();
                 try {
                     xmlParser.saveChanges();
                     clear();
@@ -129,20 +152,47 @@ public class Controller {
         });
     }
 
+    private void getValuesFromForm() {
+        xmlParser.setCargo(cargoInput.getText());
+        xmlParser.setOrgNameSender(nameOrgInputSender.getText());
+        xmlParser.setInnSender(innInputSender.getText());
+        xmlParser.setKppSender(kppInputSender.getText());
+        xmlParser.setCountryCodeSender(countryCodeInputSender.getText());
+        xmlParser.setAddressSender(addressInputSender.getText());
+        xmlParser.setOrgNameConsignee(nameOrgInputConsignee.getText());
+        xmlParser.setInnConsignee(innInputConsignee.getText());
+        xmlParser.setKppConsignee(kppInputConsignee.getText());
+        xmlParser.setCountryCodeConsignee(countryCodeInputConsignee.getText());
+        xmlParser.setAddressConsignee(addressInputConsignee.getText());
+        xmlParser.setAgreements(createAgreementsList());
+    }
+
     private XmlParser setFormValues(File file) throws Exception {
         XmlParser xmlParser = new XmlParser(file);
-        nameOrgInput.setText(xmlParser.getOrgName());
-        innInput.setText(xmlParser.getInn());
-        kppInput.setText(xmlParser.getKpp());
-        countryCodeInput.setText(xmlParser.getCountryCode());
-        addressInput.setText(xmlParser.getAddress());
+        cargoInput.setText(xmlParser.getCargo());
+        nameOrgInputSender.setText(xmlParser.getOrgNameSender());
+        innInputSender.setText(xmlParser.getInnSender());
+        kppInputSender.setText(xmlParser.getKppSender());
+        countryCodeInputSender.setText(xmlParser.getCountryCodeSender());
+        addressInputSender.setText(xmlParser.getAddressSender());
+        nameOrgInputConsignee.setText(xmlParser.getOrgNameConsignee());
+        innInputConsignee.setText(xmlParser.getInnConsignee());
+        kppInputConsignee.setText(xmlParser.getKppConsignee());
+        countryCodeInputConsignee.setText(xmlParser.getCountryCodeConsignee());
+        addressInputConsignee.setText(xmlParser.getAddressConsignee());
         listBox.setValue(xmlParser.getAgreements().size());
         addValuesToTable(xmlParser);
         return xmlParser;
     }
 
-    private static void configureFileChooser(final FileChooser fileChooser) {
+    private static void configureOpenFileChooser(final FileChooser fileChooser) {
         fileChooser.setTitle("Открыть...");
+        fileChooser.setInitialDirectory(new File(System.getProperty("user.home") + "/Downloads/"));
+        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("XML", "*.xml"));
+    }
+
+    private static void configureSaveFileChooser(final FileChooser fileChooser) {
+        fileChooser.setTitle("Сохранить...");
         fileChooser.setInitialDirectory(new File(System.getProperty("user.home") + "/Downloads/"));
         fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("XML", "*.xml"));
     }
@@ -184,11 +234,17 @@ public class Controller {
     }
 
     private void clear() {
-        nameOrgInput.setText("");
-        innInput.setText("");
-        kppInput.setText("");
-        countryCodeInput.setText("");
-        addressInput.setText("");
+        cargoInput.clear();
+        nameOrgInputSender.clear();
+        innInputSender.clear();
+        kppInputSender.clear();
+        countryCodeInputSender.clear();
+        addressInputSender.clear();
+        nameOrgInputConsignee.clear();
+        innInputConsignee.clear();
+        kppInputConsignee.clear();
+        countryCodeInputConsignee.clear();
+        addressInputConsignee.clear();
         deleteRows(textFieldsInTable.size(), textFieldsInTable.size());
         listBox.setValue(0);
         documentTable.setVisible(false);
@@ -196,27 +252,27 @@ public class Controller {
     }
 
     private void addListeners() {
-        innInput.textProperty().addListener(new ChangeListener<String>() {
+        innInputConsignee.textProperty().addListener(new ChangeListener<String>() {
             @Override
             public void changed(ObservableValue<? extends String> observableValue, String s, String t1) {
                 if (!t1.matches(INN_REGEX) || t1.isEmpty()) {
                     errorLabel.setText("Внимание! ИНН организации должен состоять из 10 цифр");
                     errorLabel.setVisible(true);
                 } else {
-                    innInput.setText(t1);
+                    innInputConsignee.setText(t1);
                     errorLabel.setVisible(false);
                 }
             }
         });
 
-        kppInput.textProperty().addListener(new ChangeListener<String>() {
+        kppInputConsignee.textProperty().addListener(new ChangeListener<String>() {
             @Override
             public void changed(ObservableValue<? extends String> observableValue, String s, String t1) {
                 if (!t1.matches(KPP_REGEX) || t1.isEmpty()) {
                     errorLabel.setText("Внимание! КПП организации должен состоять из 9 цифр");
                     errorLabel.setVisible(true);
                 } else {
-                    kppInput.setText(t1);
+                    kppInputConsignee.setText(t1);
                     errorLabel.setVisible(false);
                 }
             }

@@ -1,7 +1,5 @@
 package com.enviogroup.fxfnsxmlparser;
 
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
@@ -20,12 +18,18 @@ import java.util.List;
 
 public class XmlParser implements Tags {
 
-    private String orgName;
-    private String inn;
-    private String kpp;
-    private String countryCode;
-    private String address;
+    private String orgNameConsignee;
+    private String innConsignee;
+    private String kppConsignee;
+    private String countryCodeConsignee;
+    private String addressConsignee;
     private List<Agreement> agreements = new ArrayList<>();
+    private String orgNameSender;
+    private String innSender;
+    private String kppSender;
+    private String countryCodeSender;
+    private String addressSender;
+    private String cargo;
     private final Document document;
     private final XPath xPath;
     private File file;
@@ -33,13 +37,22 @@ public class XmlParser implements Tags {
     public XmlParser(File file) throws Exception {
         document = buildDocument(file);
         xPath = XPathFactory.newInstance().newXPath();
-        Element element = setElementByPath(GRUZ_SV_YUL_UCH_PATH, xPath, document);
-        orgName = element.getAttribute(NAIM_ORG);
-        inn = element.getAttribute(INN);
-        kpp = element.getAttribute(KPP);
-        element = setElementByPath(GRUZ_ADDRESS_PATH, xPath, document);
-        countryCode = element.getAttribute(COD_STR);
-        address = element.getAttribute(ADR_TEXT);
+        Element elementSenderId = setElementByPath(GRUZ_OTPR_ID_PATH, xPath, document);
+        orgNameSender = elementSenderId.getAttribute(NAIM_ORG);
+        innSender = elementSenderId.getAttribute(INN);
+        kppSender = elementSenderId.getAttribute(KPP);
+        Element elementSenderAddress = setElementByPath(GRUZ_OTPR_ADDRESS_PATH, xPath, document);
+        countryCodeSender = elementSenderAddress.getAttribute(COD_STR);
+        addressSender = elementSenderAddress.getAttribute(ADR_TEXT);
+        Element elementCargo = setElementByPath(TRAN_GRUZ_PATH, xPath, document);
+        cargo = elementCargo.getAttribute(SV_TRAN_GRUZ);
+        Element elementConsigneeId = setElementByPath(GRUZ_SV_YUL_UCH_PATH, xPath, document);
+        orgNameConsignee = elementConsigneeId.getAttribute(NAIM_ORG);
+        innConsignee = elementConsigneeId.getAttribute(INN);
+        kppConsignee = elementConsigneeId.getAttribute(KPP);
+        Element elementConsigneeAddress = setElementByPath(GRUZ_ADDRESS_PATH, xPath, document);
+        countryCodeConsignee = elementConsigneeAddress.getAttribute(COD_STR);
+        addressConsignee = elementConsigneeAddress.getAttribute(ADR_TEXT);
         for (Element e : setElementsByPath(OSN_PER_PATH, xPath, document)) {
             Agreement agreement = new Agreement();
             agreement.setDocumentName(e.getAttribute(NAIM_OSN));
@@ -76,13 +89,12 @@ public class XmlParser implements Tags {
     }
 
     public void saveChanges(File file) throws XPathExpressionException, TransformerException {
-        Element elementInformation = setElementByPath(GRUZ_SV_YUL_UCH_PATH, xPath, document);
-        elementInformation.setAttribute(NAIM_ORG, orgName);
-        elementInformation.setAttribute(INN, inn);
-        elementInformation.setAttribute(KPP, kpp);
-        Element elementAddress = setElementByPath(GRUZ_ADDRESS_PATH, xPath, document);
-        elementAddress.setAttribute(COD_STR, countryCode);
-        elementAddress.setAttribute(ADR_TEXT, address);
+        setCompanyInformation(GRUZ_OTPR_ID_PATH, orgNameSender, innSender, kppSender, GRUZ_OTPR_ADDRESS_PATH, countryCodeSender, addressSender);
+        setCompanyInformation(GRUZ_SV_YUL_UCH_PATH, orgNameConsignee, innConsignee, kppConsignee, GRUZ_ADDRESS_PATH, countryCodeConsignee, addressConsignee);
+        Element elementCargo = setElementByPath(TRAN_GRUZ_PATH, xPath, document);
+        if (!cargo.isEmpty()) {
+            elementCargo.setAttribute(SV_TRAN_GRUZ, cargo);
+        }
         List<Element> elementList = setElementsByPath(OSN_PER_PATH, xPath, document);
         Element elementSvPer = setElementByPath(SV_PER_PATH, xPath, document);
         while (!(elementList.size() == agreements.size())) {
@@ -91,7 +103,7 @@ public class XmlParser implements Tags {
                 elementList.remove(elementList.size() - 1);
             } else {
                 Element newElementOsnPer = document.createElement(OSN_PER);
-                elementSvPer.insertBefore(newElementOsnPer, elementSvPer.getFirstChild());
+                elementSvPer.insertBefore(newElementOsnPer, elementSvPer.getElementsByTagName(SV_LIC_PER).item(0));
                 elementSvPer.normalize();
                 elementList.add(newElementOsnPer);
             }
@@ -102,68 +114,64 @@ public class XmlParser implements Tags {
             elementList.get(i).setAttribute(DATE_OSN, agreements.get(i).getDocumentDate());
         }
         Transformer transformer = TransformerFactory.newInstance().newTransformer();
-        transformer.setOutputProperty(OutputKeys.INDENT, "yes");
+        transformer.setOutputProperty(OutputKeys.INDENT, "no");
         Result output = new StreamResult(file);
         Source input = new DOMSource(document);
         transformer.transform(input, output);
     }
 
-//    public void clear() {
-//        orgName = "";
-//        inn = "";
-//        kpp = "";
-//        countryCode = "";
-//        address = "";
-//        agreements.clear();
-//        file = null;
-//    }
-
-    public String getOrgName() {
-        return orgName;
+    private void setCompanyInformation(String gruzOtprIdPath, String orgNameSender, String innSender, String kppSender, String gruzOtprAddressPath, String countryCodeSender, String addressSender) throws XPathExpressionException {
+        Element element = setElementByPath(gruzOtprIdPath, xPath, document);
+        element.setAttribute(NAIM_ORG, orgNameSender);
+        element.setAttribute(INN, innSender);
+        element.setAttribute(KPP, kppSender);
+        Element elementAddress = setElementByPath(gruzOtprAddressPath, xPath, document);
+        elementAddress.setAttribute(COD_STR, countryCodeSender);
+        elementAddress.setAttribute(ADR_TEXT, addressSender);
     }
 
-    public void setOrgName(String orgName) {
-        this.orgName = orgName;
+    public String getOrgNameConsignee() {
+        return orgNameConsignee;
     }
 
-    public String getInn() {
-        return inn;
+    public void setOrgNameConsignee(String orgNameConsignee) {
+        this.orgNameConsignee = orgNameConsignee;
     }
 
-    public void setInn(String inn) {
-        this.inn = inn;
+    public String getInnConsignee() {
+        return innConsignee;
     }
 
-    public String getKpp() {
-        return kpp;
+    public void setInnConsignee(String innConsignee) {
+        this.innConsignee = innConsignee;
     }
 
-    public void setKpp(String kpp) {
-        this.kpp = kpp;
+    public String getKppConsignee() {
+        return kppConsignee;
     }
 
-    public String getCountryCode() {
-        return countryCode;
+    public void setKppConsignee(String kppConsignee) {
+        this.kppConsignee = kppConsignee;
     }
 
-    public void setCountryCode(String countryCode) {
-        this.countryCode = countryCode;
+    public String getCountryCodeConsignee() {
+        return countryCodeConsignee;
     }
 
-    public String getAddress() {
-        return address;
+    public void setCountryCodeConsignee(String countryCodeConsignee) {
+        this.countryCodeConsignee = countryCodeConsignee;
     }
 
-    public void setAddress(String address) {
-        this.address = address;
+    public String getAddressConsignee() {
+        return addressConsignee;
+    }
+
+    public void setAddressConsignee(String addressConsignee) {
+        this.addressConsignee = addressConsignee;
     }
 
     public void setFile(File file) {
         this.file = file;
-    }
-
-    public void addAgreement(Agreement agreement) {
-        agreements.add(agreement);
     }
 
     public List<Agreement> getAgreements() {
@@ -172,5 +180,57 @@ public class XmlParser implements Tags {
 
     public void setAgreements(List<Agreement> agreements) {
         this.agreements = agreements;
+    }
+
+    public String getOrgNameSender() {
+        return orgNameSender;
+    }
+
+    public void setOrgNameSender(String orgNameSender) {
+        this.orgNameSender = orgNameSender;
+    }
+
+    public String getInnSender() {
+        return innSender;
+    }
+
+    public void setInnSender(String innSender) {
+        this.innSender = innSender;
+    }
+
+    public String getKppSender() {
+        return kppSender;
+    }
+
+    public void setKppSender(String kppSender) {
+        this.kppSender = kppSender;
+    }
+
+    public String getCountryCodeSender() {
+        return countryCodeSender;
+    }
+
+    public void setCountryCodeSender(String countryCodeSender) {
+        this.countryCodeSender = countryCodeSender;
+    }
+
+    public String getAddressSender() {
+        return addressSender;
+    }
+
+    public void setAddressSender(String addressSender) {
+        this.addressSender = addressSender;
+    }
+
+    public String getCargo() {
+        return cargo;
+    }
+
+    public void setCargo(String cargo) {
+        this.cargo = cargo;
+    }
+
+    public File getFile() {
+        return file;
     }
 }

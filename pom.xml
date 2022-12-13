@@ -6,7 +6,7 @@
 
     <groupId>com.enviogroup</groupId>
     <artifactId>fx-fns-xml-parser</artifactId>
-    <version>0.9</version>
+    <version>1.0</version>
     <name>fx-fns-xml-parser</name>
 
     <properties>

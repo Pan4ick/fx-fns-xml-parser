@@ -61,43 +61,43 @@
     </MenuBar>
     <AnchorPane maxHeight="-1.0" maxWidth="-1.0" prefHeight="652.0" prefWidth="979.0" VBox.vgrow="ALWAYS">
       <children>
-            <Label layoutX="59.0" layoutY="266.0" text="Организация грузополучателя:">
+            <Label layoutX="118.0" layoutY="316.0" text="Организация грузополучателя:">
                <font>
                   <Font size="14.0" />
                </font>
             </Label>
-            <Label layoutX="182.0" layoutY="297.0" text="Код страны:">
+            <Label layoutX="241.0" layoutY="348.0" text="Код страны:">
                <font>
                   <Font size="14.0" />
                </font>
             </Label>
-            <TextField id="nameOrgInput" fx:id="nameOrgInput" layoutX="269.0" layoutY="264.0" />
-            <TextField id="countryCodeInput" fx:id="countryCodeInput" layoutX="269.0" layoutY="295.0" prefHeight="25.0" prefWidth="88.0" />
-            <Label layoutX="428.0" layoutY="267.0" text="ИНН:">
+            <TextField id="nameOrgInput" fx:id="nameOrgInputConsignee" layoutX="328.0" layoutY="314.0" />
+            <TextField id="countryCodeInput" fx:id="countryCodeInputConsignee" layoutX="328.0" layoutY="345.0" prefHeight="25.0" prefWidth="88.0" />
+            <Label layoutX="487.0" layoutY="316.0" text="ИНН:">
                <font>
                   <Font size="14.0" />
                </font>
             </Label>
-            <Label layoutX="367.0" layoutY="297.0" text="Адрес:">
+            <Label layoutX="426.0" layoutY="348.0" text="Адрес:">
                <font>
                   <Font size="14.0" />
                </font>
             </Label>
-            <Label layoutX="631.0" layoutY="266.0" text="КПП:">
+            <Label layoutX="690.0" layoutY="316.0" text="КПП:">
                <font>
                   <Font size="14.0" />
                </font>
             </Label>
-            <TextField id="innInput" fx:id="innInput" layoutX="472.0" layoutY="263.0" />
-            <TextField id="addressInput" fx:id="addressInput" layoutX="417.0" layoutY="295.0" prefHeight="25.0" prefWidth="405.0" />
-            <TextField id="kppInput" fx:id="kppInput" layoutX="673.0" layoutY="265.0" prefHeight="25.0" prefWidth="149.0" />
-            <ChoiceBox fx:id="listBox" layoutX="562.0" layoutY="338.0" prefHeight="25.0" prefWidth="42.0" />
-            <Label layoutX="398.0" layoutY="341.0" text="Количество документов:">
+            <TextField id="innInput" fx:id="innInputConsignee" layoutX="531.0" layoutY="314.0" />
+            <TextField id="addressInput" fx:id="addressInputConsignee" layoutX="478.0" layoutY="345.0" prefHeight="25.0" prefWidth="405.0" />
+            <TextField id="kppInput" fx:id="kppInputConsignee" layoutX="732.0" layoutY="314.0" prefHeight="25.0" prefWidth="149.0" />
+            <ChoiceBox fx:id="listBox" layoutX="565.0" layoutY="378.0" prefHeight="25.0" prefWidth="42.0" />
+            <Label layoutX="401.0" layoutY="381.0" text="Количество документов:">
                <font>
                   <Font size="14.0" />
                </font>
             </Label>
-            <GridPane fx:id="documentTable" layoutX="192.0" layoutY="375.0" prefWidth="616.0" visible="false">
+            <GridPane fx:id="documentTable" layoutX="196.0" layoutY="412.0" prefWidth="616.0" visible="false">
               <columnConstraints>
                 <ColumnConstraints hgrow="SOMETIMES" maxWidth="243.0" minWidth="10.0" prefWidth="243.0" />
                 <ColumnConstraints hgrow="SOMETIMES" maxWidth="193.0" minWidth="0.0" prefWidth="188.0" />
@@ -124,9 +124,45 @@
                   </Label>
                </children>
             </GridPane>
-            <Label fx:id="errorLabel" alignment="CENTER" contentDisplay="CENTER" layoutX="128.0" layoutY="189.0" textAlignment="CENTER" textFill="RED" visible="false">
+            <Label fx:id="errorLabel" alignment="CENTER" contentDisplay="CENTER" layoutX="187.0" layoutY="108.0" textAlignment="CENTER" textFill="RED" visible="false">
                <font>
                   <Font size="24.0" />
+               </font>
+            </Label>
+            <Label layoutX="146.0" layoutY="164.0" text="Организация отправителя:">
+               <font>
+                  <Font size="14.0" />
+               </font>
+            </Label>
+            <Label layoutX="241.0" layoutY="195.0" text="Код страны:">
+               <font>
+                  <Font size="14.0" />
+               </font>
+            </Label>
+            <TextField id="nameOrgInput" fx:id="nameOrgInputSender" layoutX="328.0" layoutY="162.0" />
+            <TextField id="countryCodeInput" fx:id="countryCodeInputSender" layoutX="328.0" layoutY="192.0" prefHeight="25.0" prefWidth="88.0" />
+            <Label layoutX="487.0" layoutY="164.0" text="ИНН:">
+               <font>
+                  <Font size="14.0" />
+               </font>
+            </Label>
+            <Label layoutX="426.0" layoutY="195.0" text="Адрес:">
+               <font>
+                  <Font size="14.0" />
+               </font>
+            </Label>
+            <Label layoutX="690.0" layoutY="164.0" text="КПП:">
+               <font>
+                  <Font size="14.0" />
+               </font>
+            </Label>
+            <TextField id="innInput" fx:id="innInputSender" layoutX="531.0" layoutY="162.0" />
+            <TextField id="addressInput" fx:id="addressInputSender" layoutX="476.0" layoutY="192.0" prefHeight="25.0" prefWidth="405.0" />
+            <TextField id="kppInput" fx:id="kppInputSender" layoutX="732.0" layoutY="162.0" prefHeight="25.0" prefWidth="149.0" />
+            <TextField fx:id="cargoInput" layoutX="476.0" layoutY="255.0" prefHeight="25.0" prefWidth="331.0" />
+            <Label layoutX="236.0" layoutY="258.0" text="Сведения о транспортировке груза:">
+               <font>
+                  <Font size="14.0" />
                </font>
             </Label>
       </children>
