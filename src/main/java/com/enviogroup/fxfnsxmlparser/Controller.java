@@ -15,11 +15,15 @@ import javafx.scene.control.TextField;
 import javafx.scene.layout.GridPane;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
+import org.apache.commons.io.FileUtils;
 
 import javax.xml.transform.TransformerException;
 import javax.xml.xpath.XPathExpressionException;
 import java.io.File;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import static com.enviogroup.fxfnsxmlparser.Tags.*;
 
@@ -93,13 +97,25 @@ public class Controller {
                 Platform.exit();
             }
         });
-        //TODO:
         saveAsXml.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
                 configureSaveFileChooser(fileChooser);
                 File file = fileChooser.showSaveDialog(new Stage());
-                file = xmlParser.getFile();
+                getValuesFromForm();
+                if (file != null) {
+                    try {
+                        if (file.getCanonicalPath().equals(xmlParser.getFile().getCanonicalPath())) {
+                            xmlParser.saveChanges();
+                        } else {
+                            FileUtils.copyFile(xmlParser.getFile(), file);
+                        }
+                        clear();
+                    } catch (Exception e) {
+                        errorLabel.setText("Не могу сохранить данный файл.");
+                        errorLabel.setVisible(true);
+                    }
+                }
             }
         });
         openXml.setOnAction(new EventHandler<ActionEvent>() {
@@ -127,7 +143,6 @@ public class Controller {
                 try {
                     xmlParser.saveChanges();
                     clear();
-                    errorLabel.setVisible(false);
                 } catch (XPathExpressionException | TransformerException ex) {
                     errorLabel.setText("Ошибка.");
                     errorLabel.setVisible(true);
@@ -248,6 +263,7 @@ public class Controller {
         deleteRows(textFieldsInTable.size(), textFieldsInTable.size());
         listBox.setValue(0);
         documentTable.setVisible(false);
+        errorLabel.setVisible(false);
         xmlParser = null;
     }
 

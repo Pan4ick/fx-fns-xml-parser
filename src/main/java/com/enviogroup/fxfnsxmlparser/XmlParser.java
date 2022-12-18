@@ -38,21 +38,21 @@ public class XmlParser implements Tags {
         document = buildDocument(file);
         xPath = XPathFactory.newInstance().newXPath();
         Element elementSenderId = setElementByPath(GRUZ_OTPR_ID_PATH, xPath, document);
-        orgNameSender = elementSenderId.getAttribute(NAIM_ORG);
-        innSender = elementSenderId.getAttribute(INN);
-        kppSender = elementSenderId.getAttribute(KPP);
+        orgNameSender = elementSenderId != null ? elementSenderId.getAttribute(NAIM_ORG) : "";
+        innSender = elementSenderId != null ? elementSenderId.getAttribute(INN) : "";
+        kppSender = elementSenderId != null ? elementSenderId.getAttribute(KPP) : "";
         Element elementSenderAddress = setElementByPath(GRUZ_OTPR_ADDRESS_PATH, xPath, document);
-        countryCodeSender = elementSenderAddress.getAttribute(COD_STR);
-        addressSender = elementSenderAddress.getAttribute(ADR_TEXT);
+        countryCodeSender = elementSenderAddress != null ? elementSenderAddress.getAttribute(COD_STR) : "";
+        addressSender = elementSenderAddress != null ? elementSenderAddress.getAttribute(ADR_TEXT) : "";
         Element elementCargo = setElementByPath(TRAN_GRUZ_PATH, xPath, document);
-        cargo = elementCargo.getAttribute(SV_TRAN_GRUZ);
+        cargo = elementCargo != null ? elementCargo.getAttribute(SV_TRAN_GRUZ) : "";
         Element elementConsigneeId = setElementByPath(GRUZ_SV_YUL_UCH_PATH, xPath, document);
-        orgNameConsignee = elementConsigneeId.getAttribute(NAIM_ORG);
-        innConsignee = elementConsigneeId.getAttribute(INN);
-        kppConsignee = elementConsigneeId.getAttribute(KPP);
+        orgNameConsignee = elementConsigneeId != null ? elementConsigneeId.getAttribute(NAIM_ORG) : "";
+        innConsignee = elementConsigneeId != null ? elementConsigneeId.getAttribute(INN) : "";
+        kppConsignee = elementConsigneeId != null ? elementConsigneeId.getAttribute(KPP) : "";
         Element elementConsigneeAddress = setElementByPath(GRUZ_ADDRESS_PATH, xPath, document);
-        countryCodeConsignee = elementConsigneeAddress.getAttribute(COD_STR);
-        addressConsignee = elementConsigneeAddress.getAttribute(ADR_TEXT);
+        countryCodeConsignee = elementConsigneeAddress != null ? elementConsigneeAddress.getAttribute(COD_STR) : "";
+        addressConsignee = elementConsigneeAddress != null ? elementConsigneeAddress.getAttribute(ADR_TEXT) : "";
         for (Element e : setElementsByPath(OSN_PER_PATH, xPath, document)) {
             Agreement agreement = new Agreement();
             agreement.setDocumentName(e.getAttribute(NAIM_OSN));
@@ -120,14 +120,24 @@ public class XmlParser implements Tags {
         transformer.transform(input, output);
     }
 
-    private void setCompanyInformation(String gruzOtprIdPath, String orgNameSender, String innSender, String kppSender, String gruzOtprAddressPath, String countryCodeSender, String addressSender) throws XPathExpressionException {
-        Element element = setElementByPath(gruzOtprIdPath, xPath, document);
-        element.setAttribute(NAIM_ORG, orgNameSender);
-        element.setAttribute(INN, innSender);
-        element.setAttribute(KPP, kppSender);
-        Element elementAddress = setElementByPath(gruzOtprAddressPath, xPath, document);
-        elementAddress.setAttribute(COD_STR, countryCodeSender);
-        elementAddress.setAttribute(ADR_TEXT, addressSender);
+    private void setCompanyInformation(String infoPath, String orgName, String inn, String kpp, String addressPath, String countryCode, String address) throws XPathExpressionException {
+        Element element = setElementByPath(infoPath, xPath, document);
+        if (!orgName.isEmpty()) {
+            element.setAttribute(NAIM_ORG, orgName);
+        }
+        if (!inn.isEmpty()) {
+            element.setAttribute(INN, inn);
+        }
+        if (!kpp.isEmpty()) {
+            element.setAttribute(KPP, kpp);
+        }
+        Element elementAddress = setElementByPath(addressPath, xPath, document);
+        if (!countryCode.isEmpty()) {
+            elementAddress.setAttribute(COD_STR, countryCode);
+        }
+        if (!address.isEmpty()) {
+            elementAddress.setAttribute(ADR_TEXT, address);
+        }
     }
 
     public String getOrgNameConsignee() {

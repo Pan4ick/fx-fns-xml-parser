@@ -6,7 +6,7 @@
 
     <groupId>com.enviogroup</groupId>
     <artifactId>fx-fns-xml-parser</artifactId>
-    <version>1.0</version>
+    <version>1.2</version>
     <name>fx-fns-xml-parser</name>
 
     <properties>
@@ -52,6 +52,11 @@
             <artifactId>junit-jupiter-engine</artifactId>
             <version>${junit.version}</version>
             <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>commons-io</groupId>
+            <artifactId>commons-io</artifactId>
+            <version>2.11.0</version>
         </dependency>
     </dependencies>
 
